@@ -31,6 +31,7 @@ export const App = () => {
     }
 
     setIsLoading(true);
+    setSelectedPost(null);
 
     getPosts(selectedUser.id)
       .then(p => setPosts(p))
@@ -82,13 +83,13 @@ export const App = () => {
                   </div>
                 )}
 
-                {errorMessage && (
+                {(selectedUser && posts.length === 0) && (
                   <div className="notification is-warning" data-cy="NoPostsYet">
                     No posts yet
                   </div>
                 )}
 
-                {selectedUser && (
+                {(selectedUser && posts.length > 0) && (
                   <PostsList posts={posts} setSelectedPost={setSelectedPost} />
                 )}
               </div>
@@ -106,15 +107,15 @@ export const App = () => {
             )}
           >
             <div className="tile is-child box is-success ">
-              <PostDetails
-                posts={posts}
-                comments={comments}
-                selectedUser={selectedUser}
-                selectedPost={selectedPost}
-                isLoading={isLoading}
-                setIsLoading={setIsLoading}
-                setErrorMessage={setErrorMessage}
-              />
+              {selectedPost && (
+                <PostDetails
+                  comments={comments}
+                  selectedPost={selectedPost}
+                  isLoading={isLoading}
+                  setIsLoading={setIsLoading}
+                  setErrorMessage={setErrorMessage}
+                />
+              )}
             </div>
           </div>
         </div>

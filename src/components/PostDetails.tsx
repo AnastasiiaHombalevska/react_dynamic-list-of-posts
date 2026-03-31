@@ -1,13 +1,10 @@
 import { Loader } from './Loader';
 import { NewCommentForm } from './NewCommentForm';
-import { User } from '../types/User';
 import { Post } from '../types/Post';
 import { Comment } from '../types/Comment';
 
 interface Prop {
-  posts: Post[];
   comments: Comment[];
-  selectedUser: User | null;
   selectedPost: Post | null;
   isLoading: boolean;
   setIsLoading: (value: boolean) => void;
@@ -15,17 +12,13 @@ interface Prop {
 }
 
 export const PostDetails: React.FC<Prop> = ({
-  posts,
   comments,
-  selectedUser,
   selectedPost,
   isLoading,
   // setIsLoading,
   // setErrorMessage,
 }) => {
   let writeCommentForm = false;
-
-  const userPosts = posts.filter(post => selectedUser?.id === post.userId);
 
   const selectedPostComnments = comments.filter(
     comment => selectedPost?.id === comment.postId,
@@ -34,89 +27,49 @@ export const PostDetails: React.FC<Prop> = ({
   return (
     <div className="content" data-cy="PostDetails">
       <div className="content" data-cy="PostDetails">
-        {userPosts.map(post => {
-          const { title, body } = post;
+        <div className="block" key={selectedPost?.id}>
+          <h2 data-cy="PostTitle">
+            #{selectedPost?.id}: {selectedPost?.title}
+          </h2>
 
-          return (
-            <div className="block" key={post.id}>
-              <h2 data-cy="PostTitle">#18: {title}</h2>
-
-              <p data-cy="PostBody">{body}</p>
-            </div>
-          );
-        })}
+          <p data-cy="PostBody">{selectedPost?.body}</p>
+        </div>
 
         <div className="block">
           {isLoading && <Loader />}
 
-          <div className="notification is-danger" data-cy="CommentsError">
+          {/* <div className="notification is-danger" data-cy="CommentsError">
             Something went wrong
-          </div>
+          </div> */}
 
           {selectedPostComnments.length > 0 ? (
             <>
               <p className="title is-4">Comments:</p>
+              {selectedPostComnments.map(comment => {
+                const { id, name, email, body } = comment;
 
-              <article className="message is-small" data-cy="Comment">
-                <div className="message-header">
-                  <a href="mailto:misha@mate.academy" data-cy="CommentAuthor">
-                    Misha Hrynko
-                  </a>
-                  <button
-                    data-cy="CommentDelete"
-                    type="button"
-                    className="delete is-small"
-                    aria-label="delete"
-                  >
-                    delete button
-                  </button>
-                </div>
+                return (
+                  <article className="message is-small" data-cy="Comment" key={id}>
+                    <div className="message-header">
+                      <a href={`mailto:${email}`} data-cy="CommentAuthor">
+                        {name}
+                      </a>
+                      <button
+                        data-cy="CommentDelete"
+                        type="button"
+                        className="delete is-small"
+                        aria-label="delete"
+                      >
+                        delete button
+                      </button>
+                    </div>
 
-                <div className="message-body" data-cy="CommentBody">
-                  Some comment
-                </div>
-              </article>
-
-              <article className="message is-small" data-cy="Comment">
-                <div className="message-header">
-                  <a href="mailto:misha@mate.academy" data-cy="CommentAuthor">
-                    Misha Hrynko
-                  </a>
-
-                  <button
-                    data-cy="CommentDelete"
-                    type="button"
-                    className="delete is-small"
-                    aria-label="delete"
-                  >
-                    delete button
-                  </button>
-                </div>
-                <div className="message-body" data-cy="CommentBody">
-                  One more comment
-                </div>
-              </article>
-
-              <article className="message is-small" data-cy="Comment">
-                <div className="message-header">
-                  <a href="mailto:misha@mate.academy" data-cy="CommentAuthor">
-                    Misha Hrynko
-                  </a>
-
-                  <button
-                    data-cy="CommentDelete"
-                    type="button"
-                    className="delete is-small"
-                    aria-label="delete"
-                  >
-                    delete button
-                  </button>
-                </div>
-
-                <div className="message-body" data-cy="CommentBody">
-                  {'Multi\nline\ncomment'}
-                </div>
-              </article>
+                    <div className="message-body" data-cy="CommentBody">
+                      {body}
+                    </div>
+                  </article>
+                );
+              })}
             </>
           ) : (
             <p className="title is-4" data-cy="NoCommentsMessage">
