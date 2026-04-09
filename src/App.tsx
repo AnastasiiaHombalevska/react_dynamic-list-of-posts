@@ -1,5 +1,5 @@
-              /* eslint-disable prettier/prettier */
-              import classNames from 'classnames';
+/* eslint-disable prettier/prettier */
+import classNames from 'classnames';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import './App.scss';
@@ -88,13 +88,13 @@ export const App = () => {
                   postsLoaded &&
                   posts.length === 0 &&
                   !errorMessage && (
-                    <div
-                      className="notification is-warning"
-                      data-cy="NoPostsYet"
-                    >
+                  <div
+                    className="notification is-warning"
+                    data-cy="NoPostsYet"
+                  >
                       No posts yet
-                    </div>
-                  )}
+                  </div>
+                )}
                 {selectedUser && postsLoaded && posts.length > 0 && (
                   <PostsList
                     posts={posts}

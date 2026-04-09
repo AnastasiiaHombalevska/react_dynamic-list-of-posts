@@ -130,7 +130,6 @@ export const PostDetails: React.FC<Prop> = ({
         {openCommentForm && (
           <NewCommentForm
             selectedPost={selectedPost}
-            isLoading={isLoading}
             setIsLoading={setIsLoading}
             setErrorMessage={setErrorMessage}
             setOpenCommentForm={setOpenCommentForm}
