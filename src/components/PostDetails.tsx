@@ -2,9 +2,10 @@ import { Loader } from './Loader';
 import { NewCommentForm } from './NewCommentForm';
 import { Post } from '../types/Post';
 import { Comment } from '../types/Comment';
+import { useEffect, useState } from 'react';
+import { getPostComments, deleteComment } from '../api/comments';
 
 interface Prop {
-  comments: Comment[];
   selectedPost: Post | null;
   isLoading: boolean;
   setIsLoading: (value: boolean) => void;
@@ -12,18 +13,45 @@ interface Prop {
 }
 
 export const PostDetails: React.FC<Prop> = ({
-  comments,
   selectedPost,
   isLoading,
-  // setIsLoading,
-  // setErrorMessage,
+  setIsLoading,
+  setErrorMessage,
 }) => {
-  let writeCommentForm = false;
+  const [openCommentForm, setOpenCommentForm] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
+  const [commentsError, setCommentsError] = useState('');
 
-  const selectedPostComnments = comments.filter(
-    comment => selectedPost?.id === comment.postId,
-  );
+  const deleteOnClick = (commentId: number) => {
+    deleteComment(commentId)
+      .then(() => setComments(prev => prev.filter(c => c.id !== commentId)))
+      .catch(() => setCommentsError('Failed to delete comment'));
+  };
 
+  useEffect(() => {
+    setCommentsError('');
+    setIsLoading(true);
+    setIsLoadingComments(true);
+
+    if (!selectedPost) {
+      return;
+    }
+
+    getPostComments(selectedPost.id)
+      .then(comm => setComments(comm))
+      .catch(() => setCommentsError('Unable to load comments'))
+      .finally(() => {
+        setIsLoading(false);
+        setIsLoadingComments(false);
+      });
+  }, [selectedPost, setIsLoading]);
+
+  useEffect(() => {
+    setOpenCommentForm(false);
+  }, [selectedPost]);
+
+  /* eslint-disable prettier/prettier */
   return (
     <div className="content" data-cy="PostDetails">
       <div className="content" data-cy="PostDetails">
@@ -31,25 +59,30 @@ export const PostDetails: React.FC<Prop> = ({
           <h2 data-cy="PostTitle">
             #{selectedPost?.id}: {selectedPost?.title}
           </h2>
-
           <p data-cy="PostBody">{selectedPost?.body}</p>
         </div>
 
         <div className="block">
           {isLoading && <Loader />}
 
-          {/* <div className="notification is-danger" data-cy="CommentsError">
-            Something went wrong
-          </div> */}
+          {commentsError && !isLoadingComments && (
+            <p className="title is-4" data-cy="CommentsError">
+              {commentsError}
+            </p>
+          )}
 
-          {selectedPostComnments.length > 0 ? (
+          {comments.length > 0 && (
             <>
               <p className="title is-4">Comments:</p>
-              {selectedPostComnments.map(comment => {
+              {comments.map(comment => {
                 const { id, name, email, body } = comment;
 
                 return (
-                  <article className="message is-small" data-cy="Comment" key={id}>
+                  <article
+                    className="message is-small"
+                    data-cy="Comment"
+                    key={id}
+                  >
                     <div className="message-header">
                       <a href={`mailto:${email}`} data-cy="CommentAuthor">
                         {name}
@@ -59,11 +92,11 @@ export const PostDetails: React.FC<Prop> = ({
                         type="button"
                         className="delete is-small"
                         aria-label="delete"
+                        onClick={() => deleteOnClick(comment.id)}
                       >
                         delete button
                       </button>
                     </div>
-
                     <div className="message-body" data-cy="CommentBody">
                       {body}
                     </div>
@@ -71,23 +104,41 @@ export const PostDetails: React.FC<Prop> = ({
                 );
               })}
             </>
-          ) : (
+          )}
+
+          {!isLoading &&
+            !isLoadingComments &&
+            !commentsError &&
+            comments.length === 0 && (
             <p className="title is-4" data-cy="NoCommentsMessage">
-              No comments yet
+                No comments yet
             </p>
           )}
 
-          <button
-            data-cy="WriteCommentButton"
-            type="button"
-            className="button is-link"
-            onClick={() => (writeCommentForm = true)}
-          >
-            Write a comment
-          </button>
+          {!openCommentForm && !isLoading && !commentsError && (
+            <button
+              data-cy="WriteCommentButton"
+              type="button"
+              className="button is-link"
+              onClick={() => setOpenCommentForm(true)}
+            >
+              Write a comment
+            </button>
+          )}
         </div>
 
-        {writeCommentForm && <NewCommentForm />}
+        {openCommentForm && (
+          <NewCommentForm
+            selectedPost={selectedPost}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            setErrorMessage={setErrorMessage}
+            setOpenCommentForm={setOpenCommentForm}
+            onAddComment={newComment =>
+              setComments(prev => [...prev, newComment])
+            }
+          />
+        )}
       </div>
     </div>
   );

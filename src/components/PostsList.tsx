@@ -1,19 +1,16 @@
-import { useState } from 'react';
 import { Post } from '../types/Post';
 
 interface Prop {
   posts: Post[];
-  setSelectedPost: (value: Post) => void;
+  selectedPost: Post | null;
+  onTogglePost: (post: Post) => void;
 }
 
-export const PostsList: React.FC<Prop> = ({ posts, setSelectedPost }) => {
-  const [openPostId, setOpenPostId] = useState<number | null>(null);
-
-  function toggleComments(post: Post) {
-    setSelectedPost(post);
-    setOpenPostId(prev => (prev === post.id ? null : post.id));
-  }
-
+export const PostsList: React.FC<Prop> = ({
+  posts,
+  selectedPost,
+  onTogglePost,
+}) => {
   return (
     <div data-cy="PostsList">
       <p className="title">Posts:</p>
@@ -30,7 +27,7 @@ export const PostsList: React.FC<Prop> = ({ posts, setSelectedPost }) => {
         <tbody>
           {posts.map(post => {
             const { id, title } = post;
-            const isOpen = openPostId === id;
+            const isOpen = selectedPost?.id === id;
 
             return (
               <tr data-cy="Post" key={id}>
@@ -41,8 +38,8 @@ export const PostsList: React.FC<Prop> = ({ posts, setSelectedPost }) => {
                   <button
                     type="button"
                     data-cy="PostButton"
-                    className={isOpen ? 'button is-link' : 'button is-link is-light'}
-                    onClick={() => toggleComments(post)}
+                    className={`button ${isOpen ? 'is-link' : 'is-link is-light'}`}
+                    onClick={() => onTogglePost(post)}
                   >
                     {isOpen ? 'Close' : 'Open'}
                   </button>

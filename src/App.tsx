@@ -1,5 +1,5 @@
-import classNames from 'classnames';
-
+              /* eslint-disable prettier/prettier */
+              import classNames from 'classnames';
 import 'bulma/css/bulma.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import './App.scss';
@@ -9,18 +9,18 @@ import { PostDetails } from './components/PostDetails';
 import { UserSelector } from './components/UserSelector';
 import { Loader } from './components/Loader';
 import { useEffect, useState } from 'react';
-import { getPostComments, getPosts } from './api/post';
+import { getPosts } from './api/post';
 
 import { Post } from './types/Post';
 import { User } from './types/User';
-import { Comment } from './types/Comment';
 
 export const App = () => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [postsLoaded, setPostsLoaded] = useState(false);
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [openPostId, setOpenPostId] = useState<number | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -32,25 +32,30 @@ export const App = () => {
 
     setIsLoading(true);
     setSelectedPost(null);
+    setOpenPostId(null);
+    setPosts([]);
+    setPostsLoaded(false);
+    setErrorMessage('');
 
     getPosts(selectedUser.id)
       .then(p => setPosts(p))
       .catch(() => setErrorMessage('Unable to load posts'))
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        setPostsLoaded(true);
+        setIsLoading(false);
+      });
   }, [selectedUser]);
 
-  useEffect(() => {
-    if (!selectedPost) {
-      return;
+  const handleTogglePost = (post: Post) => {
+    if (openPostId === post.id) {
+      setOpenPostId(null);
+      setSelectedPost(null);
+    } else {
+      setOpenPostId(post.id);
+      setSelectedPost(post);
+      setIsLoading(true);
     }
-
-    setIsLoading(true);
-
-    getPostComments(selectedPost.id)
-      .then(comm => setComments(comm))
-      .catch(() => setErrorMessage('Unable to load comments'))
-      .finally(() => setIsLoading(false));
-  }, [selectedPost]);
+  };
 
   return (
     <main className="section">
@@ -66,14 +71,11 @@ export const App = () => {
                   setErrorMessage={setErrorMessage}
                 />
               </div>
-
               <div className="block" data-cy="MainContent">
                 {!selectedUser && (
                   <p data-cy="NoSelectedUser">No user selected</p>
                 )}
-
                 {isLoading && <Loader />}
-
                 {errorMessage && (
                   <div
                     className="notification is-danger"
@@ -82,15 +84,23 @@ export const App = () => {
                     Something went wrong!
                   </div>
                 )}
-
-                {(selectedUser && posts.length === 0) && (
-                  <div className="notification is-warning" data-cy="NoPostsYet">
-                    No posts yet
-                  </div>
-                )}
-
-                {(selectedUser && posts.length > 0) && (
-                  <PostsList posts={posts} setSelectedPost={setSelectedPost} />
+                {selectedUser &&
+                  postsLoaded &&
+                  posts.length === 0 &&
+                  !errorMessage && (
+                    <div
+                      className="notification is-warning"
+                      data-cy="NoPostsYet"
+                    >
+                      No posts yet
+                    </div>
+                  )}
+                {selectedUser && postsLoaded && posts.length > 0 && (
+                  <PostsList
+                    posts={posts}
+                    selectedPost={selectedPost}
+                    onTogglePost={handleTogglePost}
+                  />
                 )}
               </div>
             </div>
@@ -103,13 +113,12 @@ export const App = () => {
               'is-parent',
               'is-8-desktop',
               'Sidebar',
-              'Sidebar--open',
+              selectedPost ? 'Sidebar--open' : '',
             )}
           >
-            <div className="tile is-child box is-success ">
+            <div className="tile is-child box is-success">
               {selectedPost && (
                 <PostDetails
-                  comments={comments}
                   selectedPost={selectedPost}
                   isLoading={isLoading}
                   setIsLoading={setIsLoading}
