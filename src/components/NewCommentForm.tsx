@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { addComment } from '../api/comments';
 import { Comment } from '../types/Comment';
 import { Post } from '../types/Post';
-import cn from 'classnames';
+import classNames from 'classnames';
 
 type NewComment = Omit<Comment, 'id'>;
 
@@ -56,9 +56,10 @@ export const NewCommentForm: React.FC<Props> = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
+
     setNewComment(prev => ({ ...prev, [name]: value }));
     setErrors(prev => ({ ...prev, [name]: false }));
   };
@@ -83,6 +84,7 @@ export const NewCommentForm: React.FC<Props> = ({
       setIsSubmitting(true);
       setIsLoading?.(true);
       const createdComment = await addComment(newComment);
+
       onAddComment?.(createdComment);
       resetForm();
     } catch {
@@ -96,7 +98,9 @@ export const NewCommentForm: React.FC<Props> = ({
   return (
     <form data-cy="NewCommentForm" onSubmit={handleSubmit} onReset={resetForm}>
       <div className="field" data-cy="NameField">
-        <label className="label" htmlFor="comment-author-name">Author Name</label>
+        <label className="label" htmlFor="comment-author-name">
+          Author Name
+        </label>
         <div className="control has-icons-left has-icons-right">
           <input
             type="text"
@@ -111,16 +115,25 @@ export const NewCommentForm: React.FC<Props> = ({
             <i className="fas fa-user" />
           </span>
           {errors.name && (
-            <span className="icon is-small is-right has-text-danger" data-cy="ErrorIcon">
+            <span
+              className="icon is-small is-right has-text-danger"
+              data-cy="ErrorIcon"
+            >
               <i className="fas fa-exclamation-triangle" />
             </span>
           )}
         </div>
-        {errors.name && <p className="help is-danger" data-cy="ErrorMessage">Name is required</p>}
+        {errors.name && (
+          <p className="help is-danger" data-cy="ErrorMessage">
+            Name is required
+          </p>
+        )}
       </div>
 
       <div className="field" data-cy="EmailField">
-        <label className="label" htmlFor="comment-author-email">Author Email</label>
+        <label className="label" htmlFor="comment-author-email">
+          Author Email
+        </label>
         <div className="control has-icons-left has-icons-right">
           <input
             type="text"
@@ -135,16 +148,25 @@ export const NewCommentForm: React.FC<Props> = ({
             <i className="fas fa-envelope" />
           </span>
           {errors.email && (
-            <span className="icon is-small is-right has-text-danger" data-cy="ErrorIcon">
+            <span
+              className="icon is-small is-right has-text-danger"
+              data-cy="ErrorIcon"
+            >
               <i className="fas fa-exclamation-triangle" />
             </span>
           )}
         </div>
-        {errors.email && <p className="help is-danger" data-cy="ErrorMessage">Email is required</p>}
+        {errors.email && (
+          <p className="help is-danger" data-cy="ErrorMessage">
+            Email is required
+          </p>
+        )}
       </div>
 
       <div className="field" data-cy="BodyField">
-        <label className="label" htmlFor="comment-body">Comment Text</label>
+        <label className="label" htmlFor="comment-body">
+          Comment Text
+        </label>
         <div className="control">
           <textarea
             id="comment-body"
@@ -155,14 +177,18 @@ export const NewCommentForm: React.FC<Props> = ({
             onChange={handleChange}
           />
         </div>
-        {errors.body && <p className="help is-danger" data-cy="ErrorMessage">Enter some text</p>}
+        {errors.body && (
+          <p className="help is-danger" data-cy="ErrorMessage">
+            Enter some text
+          </p>
+        )}
       </div>
 
       <div className="field is-grouped">
         <div className="control">
           <button
             type="submit"
-            className={cn('button is-link', { 'is-loading': isSubmitting })}
+            className={classNames('button is-link', { 'is-loading': isSubmitting })}
             disabled={isSubmitting}
           >
             Add
