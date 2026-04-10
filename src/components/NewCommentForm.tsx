@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { addComment } from '../api/comments';
+import { addComment } from '../api/comment';
 import { Comment } from '../types/Comment';
 import { Post } from '../types/Post';
 import classNames from 'classnames';
@@ -188,7 +188,9 @@ export const NewCommentForm: React.FC<Props> = ({
         <div className="control">
           <button
             type="submit"
-            className={classNames('button is-link', { 'is-loading': isSubmitting })}
+            className={classNames('button is-link', {
+              'is-loading': isSubmitting,
+            })}
             disabled={isSubmitting}
           >
             Add
