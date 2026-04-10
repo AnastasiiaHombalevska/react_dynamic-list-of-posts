@@ -110,10 +110,10 @@ export const PostDetails: React.FC<Prop> = ({
             !isLoadingComments &&
             !commentsError &&
             comments.length === 0 && (
-              <p className="title is-4" data-cy="NoCommentsMessage">
+            <p className="title is-4" data-cy="NoCommentsMessage">
                 No comments yet
-              </p>
-            )}
+            </p>
+          )}
 
           {!openCommentForm && !isLoading && !commentsError && (
             <button
